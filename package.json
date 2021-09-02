@@ -26,6 +26,8 @@
     "sequelize": "^6.6.5"
   },
   "dependencies": {
+    "axios": "^0.21.1",
+    "graphql-request": "^3.5.0",
     "mongoose": "^6.0.3"
   }
 }

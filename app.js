@@ -1,31 +1,42 @@
 const express = require('express');
 const app = express();
+const axios = require('axios');
+const getAccessToken = require('./config/axiosInstance');
+require('dotenv').config();
+const {ENJIN_PROJECT_ID, ENJIN_PROJECT_SECRET} = process.env
 
 const mongoose = require('mongoose');
-const User = require('./models/test');
 
 //DB setup
 mongoose.connect('mongodb://mongo:27017');
 
-app.get('/create', function(req, res){
-  const newUser = new User({
-    first_name: 'req.body.first_name',
-    last_name: 'req.body.last_name',
-    password: 'req.body.password',
-    gender: 'Male',
-    date_of_birth: Date.now(),
-    address: "req.body.address",
-    phone: 58815090,
-  });
-  newUser.save().then(user => res.json(user));
-});
+getAccessToken(ENJIN_PROJECT_ID, ENJIN_PROJECT_SECRET)
+  .then(token => {
 
-app.get('/', function(req, res){
-  User.find({})
-    .then(data => res.send(data))
-});
+    const query = `
+      query GetTokenDetails($name: String!) {
+        EnjinTokens(name: $name, pagination: {page: 1, limit: 50}) {
+          id
+          name
+          creator
+        }
+      }
+    `
+    axios({
+      url: 'https://kovan.cloud.enjin.io/graphql/default',
+      method: 'post',
+      data: {
+        query,
+        variables: { name: "Test Assetttt" },
+      },
+      headers: {
+        'Authorization': token
+      }
+    }).then(result => console.log(result.data.data.EnjinTokens))
+
+  })
 
 
-app.listen(3005, function(){
+app.listen(3000, function(){
   console.log('Heloo mfkerssss');
 });
