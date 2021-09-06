@@ -2,6 +2,21 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema ({
+  id: {
+    type: Number,
+    default: 0
+  },
+  username: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  email: {
+    type: String,
+    required: true,
+    lowercase: true,
+    trim: true
+  },
   first_name: {
       type: String,
       required: true,
@@ -16,6 +31,10 @@ const UserSchema = new Schema ({
       type: String,
       required: true,
   },
+  identities: {
+    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Identities'}],
+    default: []
+  },
   gender: {
       type: String,
       enum: ['Male', 'Female', 'Other'],
@@ -24,18 +43,6 @@ const UserSchema = new Schema ({
   date_of_birth: {
       type: Date,
       required: true
-  },
-  address: {
-      type: String,
-      required: true
-  },
-  phone: {
-      type: Number,
-      required: true
-  },
-  date_of_creation: {
-      type: Date,
-      default: Date.now
   }
 });
 
