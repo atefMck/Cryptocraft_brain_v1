@@ -2,10 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const TransactionSchema = new Schema ({
-  id: {
-    type: Number,
-    default: 0
-  },
   from: {
     type: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     required: true,

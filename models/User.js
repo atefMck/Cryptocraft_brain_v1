@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const bcrypt = require('bcrypt')
 
 const UserSchema = new Schema ({
-  id: {
+  userId: {
     type: Number,
-    default: 0
+    required: true
   },
   username: {
     type: String,
@@ -17,34 +18,40 @@ const UserSchema = new Schema ({
     lowercase: true,
     trim: true
   },
-  first_name: {
-      type: String,
-      required: true,
-      trim: true
-  },
-  last_name: {
-      type: String,
-      required: true,
-      trim: true
-  },
+  // first_name: {
+  //     type: String,
+  //     required: true,
+  //     trim: true
+  // },
+  // last_name: {
+  //     type: String,
+  //     required: true,
+  //     trim: true
+  // },
   password: {
       type: String,
       required: true,
   },
   identities: {
-    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Identities'}],
+    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Identity'}],
     default: []
   },
-  gender: {
-      type: String,
-      enum: ['Male', 'Female', 'Other'],
-      required: true
-  },
-  date_of_birth: {
-      type: Date,
-      required: true
-  }
+  // gender: {
+  //     type: String,
+  //     enum: ['Male', 'Female', 'Other', 'Unspecified'],
+  //     default: 'Unspecified'
+  // },
+  // date_of_birth: {
+  //     type: Date,
+  //     required: true
+  // }
 });
+
+UserSchema.pre('save', async function(next) {
+  const salt = await bcrypt.genSalt()
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+})
 
 const User = mongoose.model('User', UserSchema);
 

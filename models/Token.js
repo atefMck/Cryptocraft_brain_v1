@@ -2,10 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const TokenSchema = new Schema ({
-  id: {
-    type: Number,
-    default: 0
-  },
   name: {
     type: String,
     required: true
@@ -14,7 +10,7 @@ const TokenSchema = new Schema ({
     type: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     required: true,
   },
-  icon: {
+  image: {
     type: String,
     default: ""
   },
@@ -29,7 +25,7 @@ const TokenSchema = new Schema ({
   metadata: {
     type: Object,
   },
-  metadataUri: {
+  metadataURI: {
     type: String,
     required: true
   },
@@ -66,15 +62,15 @@ const TokenSchema = new Schema ({
   transferFeeSettings: {
     type: {type: mongoose.Schema.Types.ObjectId, ref: 'TransferFeeSettings'},
   },
-  variantMode: {
-    type: String,
-    enum: ["NONE", "BEAM", "ONCE", "ALWAYS"],
-    required: true
-  },
-  variants: {
-    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'TokenVariant'}],
-    default: []
-  }
+  // variantMode: {
+  //   type: String,
+  //   enum: ["NONE", "BEAM", "ONCE", "ALWAYS"],
+  //   required: true
+  // },
+  // variants: {
+  //   type: [{type: mongoose.Schema.Types.ObjectId, ref: 'TokenVariant'}],
+  //   default: []
+  // }
 });
 
 const Token = mongoose.model('Token', TokenSchema);

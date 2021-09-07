@@ -4,21 +4,18 @@ const Schema = mongoose.Schema;
 const IdentitySchema = new Schema ({
   id: {
     type: Number,
-    default: 0
-  },
-  appId: {
-    type: Number,
-    default: 5060
+    required: true
   },
   linkingCode: {
-    type: String
+    type: String,
+    required: true
   },
-  linkingQrCode: {
-    type: String
+  linkingCodeQr: {
+    type: String,
+    required: true
   },
   user: {
     type: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    required: true,
   },
   transactions: {
     type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Transaction'}],

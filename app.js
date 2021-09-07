@@ -1,22 +1,33 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const getAccessToken = require('./config/axiosInstance');
 const userRouter = require('./routes/User')
+const listingRouter = require('./routes/Listing')
+const cors = require("cors");
 
-require('dotenv').config();
-const {ENJIN_PROJECT_ID, ENJIN_PROJECT_SECRET} = process.env
+
 
 const mongoose = require('mongoose');
 
 //DB setup
-mongoose.connect('mongodb://mongo:27017');
+mongoose.connect('mongodb://mongo:27017', () => {
+  console.log('dropping database');
+  mongoose.connection.db.dropDatabase();
+});
+
+const corsOptions = {
+  origin: ["http://localhost:3000"]
+};
+
+// Applying middlewares
+app.use(cors(corsOptions));
 
 // Bodyparser Middleware
 app.use(bodyParser.json());
 
 app.use('/users/', userRouter);
+app.use('/listings/', listingRouter);
 
-app.listen(3000, function(){
-  console.log('Heloo mfkerssss');
+app.listen(3005, function(){
+  console.log('App started on localhost:3005');
 });
