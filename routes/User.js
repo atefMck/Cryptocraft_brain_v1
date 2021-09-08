@@ -4,14 +4,22 @@ const User = require('../models/User');
 const Identity = require('../models/Identity');
 const getAuthClient = require('../utils/graphQLClient')
 const { gql } = require('graphql-request')
+const bcrypt = require('bcrypt')
+const {generateToken, verifyToken} = require('../utils/tokenManager');
 
 
 
 // @route   GET api/users
 // @desc    GET all users
 // @access  Public
-router.get('/', (req, res) => {
-  User.find().populate('identities').then(users => res.json(users))
+router.get('/getProfile', verifyToken, (req, res) => {
+  const id = req.userId
+  User.findById(id).populate('identities').populate('identities.tokens').populate('identities.transactions').exec((err, user) => {
+    if (err) {
+      res.statusCode = 500
+      res.send({message: 'Internal server error please try again later.'});
+    } else res.json(user);
+  })
 });
 
 
@@ -66,6 +74,43 @@ router.post('/register', (req, res) => {
     res.statusCode = 500
     res.send({message: 'Internal server error please try again later.'})
   })
+});
+
+// @route   POST api/users
+// @desc    POST new user
+// @access  Public
+router.post('/login', (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  User.findOne({username: username})
+      .populate('identities')
+      .populate('identities.tokens')
+      .populate('identities.transactions')
+      .exec((err, user) => {
+      if (err || user === null) {
+        res.statusCode = 400
+        res.send({message: 'The username you entred isn\'t connected to an account.'});
+      } else {
+        bcrypt.compare(password, user.password, (err, correct) => {
+          if (err) {
+            res.statusCode = 500
+            res.send({message: 'Internal server error please try again later.'});
+          } else {
+            if (correct) {
+              user.password = '######################Cryptocraft######################'
+              generateToken(user._id)
+                .then(token => {
+                  res.statusCode = 200
+                  res.send({user, token})
+                })
+            } else {
+              res.statusCode = 400
+              res.send({message: 'The password you entered is incorrect.'})
+            }
+          }
+        })
+      }
+    })  
 });
 
 module.exports = router;

@@ -29,6 +29,7 @@
     "bcrypt": "^5.0.1",
     "graphql": "^15.5.3",
     "graphql-request": "^3.5.0",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.0.3"
   }
 }
