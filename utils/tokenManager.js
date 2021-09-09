@@ -21,7 +21,7 @@ const verifyToken = (req, res, next) => {
 
   // console.log(req.headers)
   jwt.verify(token, SECRET_KEY, (err, decoded) => {
-      if (err) {console.log("waaaaaaaaaaaa"); return res.sendStatus(403)}
+      if (err) {console.log("Invalid token"); return res.sendStatus(403)}
       req.userId = decoded.userId
       next()
   })

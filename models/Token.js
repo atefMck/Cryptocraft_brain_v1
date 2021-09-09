@@ -2,12 +2,16 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const TokenSchema = new Schema ({
+  id: {
+    type: String,
+    required: true
+  },
   name: {
     type: String,
     required: true
   },
-  creator: {
-    type: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  creatorAddress: {
+    type: String,
     required: true,
   },
   image: {
@@ -24,6 +28,7 @@ const TokenSchema = new Schema ({
   },
   metadata: {
     type: Object,
+    default: {}
   },
   metadataURI: {
     type: String,
@@ -59,9 +64,9 @@ const TokenSchema = new Schema ({
     enum: ["PERMANENT", "TEMPORARY", "BOUND"],
     required: true
   },
-  transferFeeSettings: {
-    type: {type: mongoose.Schema.Types.ObjectId, ref: 'TransferFeeSettings'},
-  },
+  // transferFeeSettings: {
+  //   type: {type: mongoose.Schema.Types.ObjectId, ref: 'TransferFeeSettings'},
+  // },
   // variantMode: {
   //   type: String,
   //   enum: ["NONE", "BEAM", "ONCE", "ALWAYS"],

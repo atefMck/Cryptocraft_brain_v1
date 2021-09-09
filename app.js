@@ -5,8 +5,7 @@ const userRouter = require('./routes/User')
 const listingRouter = require('./routes/Listing');
 const authRouter = require('./routes/Auth')
 const cors = require("cors");
-
-
+const identityRouter = require('./routes/Identity')
 
 const mongoose = require('mongoose');
 
@@ -29,6 +28,7 @@ app.use(bodyParser.json());
 app.use('/users/', userRouter);
 app.use('/listings/', listingRouter);
 app.use('/auth/', authRouter);
+app.use('/identity/', identityRouter);
 
 app.listen(3005, function(){
   console.log('App started on localhost:3005');

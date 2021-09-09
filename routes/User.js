@@ -14,12 +14,20 @@ const {generateToken, verifyToken} = require('../utils/tokenManager');
 // @access  Public
 router.get('/getProfile', verifyToken, (req, res) => {
   const id = req.userId
-  User.findById(id).populate('identities').populate('identities.tokens').populate('identities.transactions').exec((err, user) => {
-    if (err) {
-      res.statusCode = 500
-      res.send({message: 'Internal server error please try again later.'});
-    } else res.json(user);
+  User.findById(id).populate({
+    path: 'identities', 
+    populate: [
+      {path: 'tokens'},
+      {path: 'wallet'}
+    ]
   })
+    .exec((err, user) => {
+      console.log(err)
+      if (err) {
+        res.statusCode = 500
+        res.send({message: 'Internal server error please try again later.'});
+      } else res.json(user);
+    })
 });
 
 
@@ -54,12 +62,12 @@ router.post('/register', (req, res) => {
           id: identity.id,
           linkingCode: identity.linkingCode,
           linkingCodeQr: identity.linkingCodeQr,
-          user: newUser
         })
         newIdentity.save()
         newUser.identities.push(newIdentity)
         newUser.save()
           .then(user => {
+            user.password = '###############################################'
             res.statusCode = 200;
             res.send(user);
           })

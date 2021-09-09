@@ -9,15 +9,7 @@ const BalanceSchema = new Schema ({
   value: {
     type: Number,
     required: true,
-  },
-  identity: {
-    type: {type: mongoose.Schema.Types.ObjectId, ref: 'Identity'},
-    required: true
-  },
-  wallet: {
-    type: {type: mongoose.Schema.Types.ObjectId, ref: 'Wallet'},
-    required: true
-  },
+  }
 });
 
 const Balance = mongoose.model('Balance', BalanceSchema);

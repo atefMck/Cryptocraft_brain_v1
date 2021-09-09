@@ -14,9 +14,6 @@ const IdentitySchema = new Schema ({
     type: String,
     required: true
   },
-  user: {
-    type: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-  },
   transactions: {
     type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Transaction'}],
     default: []
@@ -26,7 +23,8 @@ const IdentitySchema = new Schema ({
     default: []
   },
   wallet: {
-    type: {type: mongoose.Schema.Types.ObjectId, ref: 'Wallet'},
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wallet',
   }
 });
 
