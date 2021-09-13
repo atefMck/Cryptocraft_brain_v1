@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ListingSchema = new Schema ({
-  descriptions: {
+  description: {
     type: String,
     required: true
   },
@@ -10,23 +10,21 @@ const ListingSchema = new Schema ({
     type: Number,
     required: true,
   },
-  views: {
+  quantity: {
     type: Number,
-    default: 0,
-  },
-  likes: {
-    type: Number,
-    default: 0,
+    required: true,
   },
   offers: {
     type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Offer'}],
     default: [],
   },
   seller: {
-    type: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    type: String,
+    required: true,
   },
   token: {
-    type: {type: mongoose.Schema.Types.ObjectId, ref: 'Token'},
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Token',
   },
 });
 

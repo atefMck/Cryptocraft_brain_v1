@@ -4,17 +4,26 @@ const Schema = mongoose.Schema;
 const TokenSchema = new Schema ({
   id: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   name: {
     type: String,
     required: true
   },
+  views: {
+    type: Number,
+    default: 0,
+  },
+  likes: {
+    type: Number,
+    default: 0,
+  },
   creatorAddress: {
     type: String,
     required: true,
   },
-  image: {
+  icon: {
     type: String,
     default: ""
   },
@@ -77,6 +86,7 @@ const TokenSchema = new Schema ({
   //   default: []
   // }
 });
+
 
 const Token = mongoose.model('Token', TokenSchema);
 

@@ -6,7 +6,6 @@ const getAuthClient = async () => {
   const endpoint = 'https://kovan.cloud.enjin.io/graphql/default'
 
   const graphQLClient = new GraphQLClient(endpoint);
-
   const query = gql`
   query RetrieveAppAccessToken {
     AuthApp(id: ${ENJIN_PROJECT_ID}, secret: "${ENJIN_PROJECT_SECRET}") {

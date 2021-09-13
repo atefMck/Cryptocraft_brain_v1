@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt')
 
 const UserSchema = new Schema ({
-  userId: {
+  id: {
     type: Number,
     required: true
   },
@@ -18,33 +18,34 @@ const UserSchema = new Schema ({
     lowercase: true,
     trim: true
   },
-  // first_name: {
-  //     type: String,
-  //     required: true,
-  //     trim: true
-  // },
-  // last_name: {
-  //     type: String,
-  //     required: true,
-  //     trim: true
-  // },
   password: {
       type: String,
       required: true,
   },
-  identities: {
-    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Identity'}],
+  linkingCode: {
+    type: String,
+    required: true
+  },
+  linkingCodeQr: {
+    type: String,
+    required: true
+  },
+  transactions: {
+    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Transaction'}],
     default: []
   },
-  // gender: {
-  //     type: String,
-  //     enum: ['Male', 'Female', 'Other', 'Unspecified'],
-  //     default: 'Unspecified'
-  // },
-  // date_of_birth: {
-  //     type: Date,
-  //     required: true
-  // }
+  tokens: {
+    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Token'}],
+    default: []
+  },
+  wallet: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Wallet',
+  },
+  listings: {
+    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Listing'}],
+    default: []
+  }
 });
 
 UserSchema.pre('save', async function(next) {

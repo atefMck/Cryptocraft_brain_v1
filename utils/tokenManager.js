@@ -19,7 +19,6 @@ const verifyToken = (req, res, next) => {
   const token = authHeader && authHeader.split(' ')[1]
   if (token === null) return res.sendStatus(401)
 
-  // console.log(req.headers)
   jwt.verify(token, SECRET_KEY, (err, decoded) => {
       if (err) {console.log("Invalid token"); return res.sendStatus(403)}
       req.userId = decoded.userId

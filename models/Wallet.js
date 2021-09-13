@@ -18,18 +18,6 @@ const WalletSchema = new Schema ({
     type: Number,
     required: true
   },
-  balances: {
-    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Balance'}],
-    default: []
-  },
-  tokensCreated: {
-    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Token'}],
-    default: []
-  },
-  transactions: {
-    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Transaction'}],
-    default: []
-  }
 });
 
 const Wallet = mongoose.model('Wallet', WalletSchema);
