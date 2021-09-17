@@ -19,38 +19,27 @@ const UserSchema = new Schema ({
     trim: true
   },
   password: {
-      type: String,
-      required: true,
-  },
-  linkingCode: {
     type: String,
-    required: true
+    required: true,
   },
-  linkingCodeQr: {
-    type: String,
-    required: true
-  },
-  transactions: {
-    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Transaction'}],
-    default: []
-  },
-  tokens: {
-    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Token'}],
-    default: []
-  },
-  wallet: {
+  profileInfo: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Wallet',
+    ref: 'ProfileInfo'
+  },
+  identity: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Identity',
   },
   listings: {
-    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Listing'}],
-    default: []
+    type: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Listing',
+    }]
   }
 });
 
 UserSchema.pre('save', async function(next) {
-  const salt = await bcrypt.genSalt()
-  this.password = await bcrypt.hash(this.password, salt);
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 })
 

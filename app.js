@@ -1,11 +1,14 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+
 const userRouter = require('./routes/User')
 const walletRouter = require('./routes/Wallet')
 const listingRouter = require('./routes/Listing');
 const authRouter = require('./routes/Auth')
 const tokenRouter = require('./routes/Token')
+const identityRouter = require('./routes/Identity')
+
 const cors = require("cors");
 const { MongoClient } = require('mongodb');
 const mongoose = require('mongoose')
@@ -40,6 +43,7 @@ app.use('/listings/', listingRouter);
 app.use('/auth/', authRouter);
 app.use('/token/', tokenRouter);
 app.use('/wallet/', walletRouter);
+app.use('/identity/', identityRouter);
 
 app.listen(3005, function(){
   console.log('App started on localhost:3005');
