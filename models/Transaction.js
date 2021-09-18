@@ -29,7 +29,7 @@ const TransactionSchema = new Schema ({
   },
   icon: {
     type: String,
-    default: ""
+    required: true
   },
   state: {
     type: String,

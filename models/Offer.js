@@ -6,8 +6,16 @@ const OfferSchema = new Schema ({
     type: Number,
     required: true
   },
+  quantity: {
+    type: Number,
+    required: true
+  },
   USDPrice: {
     type: Number,
+    required: true
+  },
+  coin: {
+    type: String,
     required: true
   },
   expiration: {
@@ -15,7 +23,8 @@ const OfferSchema = new Schema ({
     require: true,
   },
   from: {
-    type: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User',
     required: true
   },
 });

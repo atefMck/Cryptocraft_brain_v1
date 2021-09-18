@@ -3,11 +3,12 @@ const app = express();
 const bodyParser = require('body-parser');
 
 const userRouter = require('./routes/User')
-const walletRouter = require('./routes/Wallet')
 const listingRouter = require('./routes/Listing');
 const authRouter = require('./routes/Auth')
 const tokenRouter = require('./routes/Token')
-const identityRouter = require('./routes/Identity')
+const offerRouter = require('./routes/Offer')
+const transactionRouter = require('./routes/Transaction')
+const walletRouter = require('./routes/Wallet')
 
 const cors = require("cors");
 const { MongoClient } = require('mongodb');
@@ -19,7 +20,6 @@ const {MONGO_PASSWORD} = process.env
 const url = `mongodb+srv://duma_dev:${MONGO_PASSWORD}@cluster0.5yohj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 mongoose.connect(url)
     .then( () => {
-
         console.log('Connected to database ')
         // console.log('dropping database');
         // mongoose.connection.db.dropDatabase();
@@ -42,8 +42,10 @@ app.use('/users/', userRouter);
 app.use('/listings/', listingRouter);
 app.use('/auth/', authRouter);
 app.use('/token/', tokenRouter);
+app.use('/offer/', offerRouter);
+app.use('/transaction/', transactionRouter);
 app.use('/wallet/', walletRouter);
-app.use('/identity/', identityRouter);
+
 
 app.listen(3005, function(){
   console.log('App started on localhost:3005');

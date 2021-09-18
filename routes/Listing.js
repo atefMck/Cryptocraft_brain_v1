@@ -25,6 +25,7 @@ router.post('/create', verifyToken, (req, res) => {
       quantity: req.body.quantity,
       seller: user.username,
       token: req.body.tokenId,
+      tokenIndex: req.body.tokenIndex,
     })
     newListing.save().then(listing => {
       user.listings.push(listing)
@@ -37,7 +38,7 @@ router.post('/create', verifyToken, (req, res) => {
 // @desc    GET all listings
 // @access  Public
 router.get('/token/:tokenId', (req, res) => {
-  Listing.find({token: mongoose.Types.ObjectId(req.params.tokenId)}).then(listings => res.send(listings))
+  Listing.find({token: mongoose.Types.ObjectId(req.params.tokenId)}).populate({path: 'offers', populate: {path: 'from'}}).then(listings => res.send(listings))
 });
 
 module.exports = router;

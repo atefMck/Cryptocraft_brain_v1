@@ -1,8 +1,8 @@
 const {generateToken, verifyToken} = require('../utils/tokenManager');
 
 const user = {
-  username: 'xFreak666',
-  pass: 'looool'
+  username: 'Tyler1',
+  pass: '!Gazza123!'
 }
 
 generateToken(user).then(token => {

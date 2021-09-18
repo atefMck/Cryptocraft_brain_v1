@@ -2,8 +2,12 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const BalanceSchema = new Schema ({
-  token: {
-    type: {type: mongoose.Schema.Types.ObjectId, ref: 'Token'},
+  tokenIndex: {
+    type: String,
+    required: true
+  },
+  tokenId: {
+    type: String,
     required: true
   },
   value: {

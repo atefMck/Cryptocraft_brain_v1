@@ -7,7 +7,10 @@ const getAuthClient = require('../utils/graphQLClient')
 const { gql } = require('graphql-request')
 const bcrypt = require('bcrypt')
 const {generateToken, verifyToken} = require('../utils/tokenManager');
-const {linkIdentity, syncIdentity} = require('../sync/Identity')
+const {syncIdentityWallet, syncIdentityTokens} = require('../sync/Identity')
+
+require('dotenv').config();
+const {ENJIN_PROJECT_ID} = process.env
 
 
 router.get('/', verifyToken, (req, res) => {
@@ -19,15 +22,15 @@ router.get('/', verifyToken, (req, res) => {
 // @access  Public
 router.get('/getProfile/:username', (req, res) => {
   const username = req.params.username
-  User.findOne({username}).populate({path: 'identity', populate: [{path: 'tokens'}, {path: 'wallet'}]}).populate({path: 'listings', populate: {path: 'token'}})
-    .exec((err, user) => {
-      if (err) {
-        res.statusCode = 500
-        res.send({message: 'Internal server error please try again later.'});
-      } else {
-        res.json(user)
-      };
-    })
+  User.findOne({username}).populate({path: 'identity', populate: [{path: 'tokens'}, {path: 'wallet', populate: {path: 'balances'}}]}).populate({path: 'listings', populate: {path: 'token'}})
+  .exec((err, user) => {
+    if (err) {
+      res.statusCode = 500
+      res.send({message: 'Internal server error please try again later.'});
+    } else {
+      res.json(user)
+    };
+  })
 });
 
 
@@ -50,53 +53,31 @@ router.post('/register', (req, res) => {
     `
     client.request(query).then(data => {
       const user = data.CreateEnjinUser
-      if (user.identities.length > 0) {
-        const identity = user.identities[0]
-        const newIdentity = new Identity({
-          id: identity.id,
-          linkingCode: identity.linkingCode,
-          linkingCodeQr: identity.linkingCodeQr,
-        })
-        newIdentity.save(() => {
-          const newUser = new User({
-            id: user.id,
-            username: req.body.username,
-            email: req.body.email.toLowerCase(),
-            password: req.body.password,
-            identity: newIdentity
-          });
-          newUser.save()
-            .then(user => {
-              res.statusCode = 201;
-              res.send(user);
-            })
-            .catch(err => {
-              console.log('Error creating new user')
-              res.statusCode = 400
-              res.send({error: err})
-            })
-        })
-      } else {
+      const identity = user.identities[0]
+      const newIdentity = new Identity({
+        id: identity.id,
+        linkingCode: identity.linkingCode,
+        linkingCodeQr: identity.linkingCodeQr,
+      })
+      newIdentity.save(() => {
         const newUser = new User({
           id: user.id,
           username: req.body.username,
           email: req.body.email.toLowerCase(),
           password: req.body.password,
+          identity: newIdentity
         });
-        createIdentitie(newUser.id).then(identity => {
-          newUser.identity = identity
-          newUser.save()
-            .then(user => {
-              res.statusCode = 201;
-              res.send(user);
-            })
-            .catch(err => {
-              console.log('Error creating new user')
-              res.statusCode = 400
-              res.send({error: err})
-            })
+        newUser.save()
+        .then(user => {
+          res.statusCode = 201;
+          res.send(user);
         })
-      }
+        .catch(err => {
+          console.log('Error creating new user')
+          res.statusCode = 400
+          res.send({error: err})
+        })
+      })
     }).catch(() => {
       console.log('Error connecting app to enjin')
       res.statusCode = 500
@@ -112,29 +93,30 @@ router.post('/login', (req, res) => {
   const username = req.body.username || req.body.filter(data => data.name === 'username')[0].value;
   const password = req.body.password || req.body.filter(data => data.name === 'password')[0].value;
   User.findOne({username: username}).select('+password')
-    .then((user) => {
-      bcrypt.compare(password, user.password, (err, correct) => {
-        if (err) {
-          res.statusCode = 500
-          res.send({message: 'Internal server error please try again later.'});
+  .then((user) => {
+    bcrypt.compare(password, user.password, (err, correct) => {
+      if (err) {
+        res.statusCode = 500
+        res.send({message: 'Internal server error please try again later.'});
+      } else {
+        if (correct) {
+          generateToken(user._id)
+          .then(token => {
+            user.password = 'Obfuscated'
+            res.statusCode = 200
+            res.send({user, token})
+          })
         } else {
-          if (correct) {
-            generateToken(user._id)
-              .then(token => {
-                user.password = 'Obfuscated'
-                res.statusCode = 200
-                res.send({user, token})
-              })
-          } else {
-            res.statusCode = 400
-            res.send({message: 'The password you entered is incorrect.'})
-          }
+          console.log(password, user.password)
+          res.statusCode = 400
+          res.send({message: 'The password you entered is incorrect.'})
         }
-      })
-    }).catch(() => {
-      res.statusCode = 500
-      res.send({message: 'The username you entered doesn\'t match any account'})
+      }
     })
+  }).catch(() => {
+    res.statusCode = 500
+    res.send({message: 'The username you entered doesn\'t match any account'})
+  })
 });
 
 // @route   GET api/users
@@ -143,17 +125,59 @@ router.post('/login', (req, res) => {
 router.get('/syncUser', verifyToken, (req, res) => {
   const id = req.userId
   User.findById(id).populate('identity')
-    .exec((err, user) => {
-      if (err) {
-        res.statusCode = 500
-        console.log(err)
-        res.send({message: 'Internal server error please try again later.'});
-      } else {
-        syncIdentity(user.identity).then(syncedIdentity => {
-          linkIdentity(syncedIdentity).then(linkedIdentity => res.send(linkedIdentity))
+  .exec((err, user) => {
+    if (err) {
+      res.statusCode = 500
+      console.log(err)
+      res.send({message: 'Internal server error please try again later.'});
+    } 
+    else {
+      getAuthClient().then(client => {
+        const query = gql `query getTokens {
+          EnjinIdentity(id: ${user.identity.id}) {
+            wallet {
+              ethAddress
+              ethBalance
+              enjBalance
+              enjAllowance
+              balances(appId: ${ENJIN_PROJECT_ID}) {
+                id
+                index
+                token {
+                  id
+                }
+                value
+              }
+            }
+            tokens {
+              id
+              name
+              creator
+              icon
+              meltFeeRatio
+              meltValue
+              metadata
+              reserve
+              nonFungible
+              supplyModel
+              circulatingSupply
+              mintableSupply
+              totalSupply
+              transferable
+            }
+          }
+        }
+        `
+        client.request(query).then(data => {
+          const tokens = data.EnjinIdentity.tokens
+          const wallet = data.EnjinIdentity.wallet
+          syncIdentityWallet(user.identity, wallet).then(syncedIdentity => {
+            syncIdentityTokens(syncedIdentity, tokens).then(linkedIdentity => res.send(linkedIdentity))
+          })
         })
-      };
-    })
-});
+      })
+    }
+  })
+})
 
 module.exports = router;

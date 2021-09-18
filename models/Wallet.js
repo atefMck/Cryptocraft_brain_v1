@@ -18,6 +18,12 @@ const WalletSchema = new Schema ({
     type: Number,
     required: true
   },
+  balances: {
+    type: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Balance',
+    }]
+  }
 });
 
 const Wallet = mongoose.model('Wallet', WalletSchema);
