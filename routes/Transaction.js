@@ -40,17 +40,21 @@ router.post('/sendTokenNFT/:listingId/:sellerUsername', verifyToken, async (req,
         let sellerTokens = seller.identity.tokens
         const soldToken = listing.token
         const exchangedBalance = sellerBalances.filter(balance => (balance.tokenIndex === listing.tokenIndex) && (balance.tokenId === listing.token.id))[0]
+
         buyerBalances.push(exchangedBalance)
-        sellerBalances = [...sellerBalances.filter(balance => !((balance.tokenIndex === listing.tokenIndex) && (balance.tokenId === listing.token.id)))]
         buyerTokens.push(soldToken)
-        if (sellerBalances.filter(balance => balance.tokenId === soldToken.id).length === 0) {
-          sellerTokens = [...sellerTokens.filter(token => token.id !== soldToken.id)]
-        }
         await buyer.identity.wallet.save()
-        await seller.identity.wallet.save()
         await buyer.identity.save()
-        await seller.identity.save()
+
+        seller.identity.wallet.balances = [...sellerBalances.filter(balance => !((balance.tokenIndex === listing.tokenIndex) && (balance.tokenId === listing.token.id)))]
+        seller.identity.wallet.save().then( async savedWallet => {
+          if (savedWallet.balances.filter(balance => balance.tokenId === soldToken.id).length === 0) {
+            seller.identity.tokens = [...sellerTokens.filter(token => token.id !== soldToken.id)]
+            await seller.identity.save()
+          }
+        })
         await listing.remove()
+
         res.send({message: 'Successfully purchase'})
       } catch (err) {
         console.log(err)

@@ -100,7 +100,7 @@ router.post('/login', (req, res) => {
         res.send({message: 'Internal server error please try again later.'});
       } else {
         if (correct) {
-          generateToken(user._id)
+          generateToken({userId: user._id, username: user.username})
           .then(token => {
             user.password = 'Obfuscated'
             res.statusCode = 200

@@ -15,7 +15,7 @@ const syncIdentityTokens = (identity, tokens) => {
       return new Promise((resolve, reject) => {
         const newTokens = []
         tokens.forEach(token => {
-          existingToken = dbTokens.filter(dbToken => dbToken.id === token.id) 
+          existingToken = dbTokens.filter(dbToken => dbToken.id === token.id)
           if (existingToken.length !== 0) {
             newTokens.push(existingToken[0]._id)
           } else {
@@ -25,6 +25,7 @@ const syncIdentityTokens = (identity, tokens) => {
             resolve(newTokens)
           }
         })
+        resolve(newTokens)
       }).then(newTokens => {
         identity.tokens = newTokens;
         identity.save().then(savedIdentity => resolve(savedIdentity))

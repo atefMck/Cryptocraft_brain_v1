@@ -29,7 +29,7 @@ router.post('/create', verifyToken, (req, res) => {
     })
     newListing.save().then(listing => {
       user.listings.push(listing)
-      user.save().then(() => res.send({message: 'Listing successfully added'})).catch(err => console.log(err))
+      user.save().then(() => res.send({message: 'Listing successfully added', tokenId: listing.token})).catch(err => console.log(err))
     }).catch(err => console.log(err))
   }).catch(err => console.log(err))
 });

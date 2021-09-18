@@ -3,9 +3,9 @@ const { Promise } = require('mongoose');
 require('dotenv').config();
 const {SECRET_KEY, TOKEN_EXPIRE_SECONDS} = process.env
 
-const generateToken = userId => {
+const generateToken = ({userId, username}) => {
   return new Promise((resolve, reject) => {
-    jwt.sign({userId}, SECRET_KEY, { expiresIn: parseInt(TOKEN_EXPIRE_SECONDS) }, (err, token) => {
+    jwt.sign({userId, username}, SECRET_KEY, { expiresIn: parseInt(TOKEN_EXPIRE_SECONDS) }, (err, token) => {
       if (err) {
         reject(new Error('Token generation unsuccessful'))
       }
@@ -22,6 +22,7 @@ const verifyToken = (req, res, next) => {
   jwt.verify(token, SECRET_KEY, (err, decoded) => {
       if (err) {console.log("Invalid token"); return res.sendStatus(403)}
       req.userId = decoded.userId
+      req.username = decoded.username
       next()
   })
 }

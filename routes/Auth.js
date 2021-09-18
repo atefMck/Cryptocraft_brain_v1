@@ -7,7 +7,7 @@ const {verifyToken} = require('../utils/tokenManager');
 // @desc    GET all listings
 // @access  Public
 router.get('/getUserId', verifyToken, (req, res) => {
-  res.send({userId: req.userId})
+  res.send({userId: req.userId, username: req.username})
 });
 
 module.exports = router;
