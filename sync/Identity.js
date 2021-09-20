@@ -10,58 +10,59 @@ const {syncToken} = require('./Token');
 const {syncWalletBalances} = require('./Wallet');
 
 const syncIdentityTokens = (identity, tokens) => {
-  return new Promise((resolve, reject) => {
-    Token.find().then(dbTokens => {
-      return new Promise((resolve, reject) => {
-        const newTokens = []
-        tokens.forEach(token => {
-          existingToken = dbTokens.filter(dbToken => dbToken.id === token.id)
-          if (existingToken.length !== 0) {
-            newTokens.push(existingToken[0]._id)
-          } else {
-            syncToken(token).then(savedToken => newTokens.push(savedToken._id)).catch(err => reject(err))
-          }
-          if (newTokens.length === tokens.length) {
-            resolve(newTokens)
-          }
-        })
-        resolve(newTokens)
-      }).then(newTokens => {
-        identity.tokens = newTokens;
-        identity.save().then(savedIdentity => resolve(savedIdentity))
-      }).catch(err => reject(err))
-    }).catch(err => reject(err))
-  })
+    return new Promise((resolve, reject) => {
+        Token.find().then(dbTokens => {
+            const newTokens = []
+            const fillingTokens = new Promise((resolve, reject) => {
+                tokens.forEach( token => {
+                    existingToken = dbTokens.filter(dbToken => dbToken.id === token.id)
+                    if (existingToken.length !== 0) {
+                        newTokens.push(existingToken[0])
+                    } else {
+                        syncToken(token).then(savedToken => newTokens.push(savedToken)).catch(err => reject(err))
+                    }
+                    if (newTokens.length === tokens.length) {
+                        resolve(newTokens)
+                    }
+                })
+                if (tokens.length === 0) resolve([]);
+            })
+            fillingTokens.then(filledTokens => {
+                identity.tokens = filledTokens;
+                identity.save().then(savedIdentity => resolve(savedIdentity))
+            }).catch(err => reject(err))
+        }).catch(err => reject(err))
+    })
 }
 
 const syncIdentityWallet = (identity, wallet) => {
-  return new Promise((resolve, reject) => {
-    Wallet.findOne({ethAddress: wallet.ethAddress}).then(existingWallet => {
-      if (existingWallet === null) {
-        const newWallet = new Wallet({
-          ethAddress: wallet.ethAddress,
-          ethBalance: wallet.ethBalance,
-          enjBalance: wallet.enjBalance,
-          enjAllowance: wallet.enjAllowance,
-        })
-        newWallet.save().then(savedWallet => {
-          syncWalletBalances(wallet, savedWallet).then(syncedWallet => {
-            identity.wallet = syncedWallet
-            identity.save().then((savedIdentity) => {
-              resolve(savedIdentity)
-            }).catch(err => reject(err))
-          })
-        })
-      } else {
-        syncWalletBalances(wallet, existingWallet).then(syncedWallet => {
-          identity.wallet = syncedWallet
-          identity.save().then((savedIdentity) => {
-            resolve(savedIdentity)
-          }).catch(err => reject(err))
-        })
-      }
-    }).catch(err => reject(err))
-  })
+    return new Promise((resolve, reject) => {
+        Wallet.findOne({ethAddress: wallet.ethAddress}).then(existingWallet => {
+            if (existingWallet === null) {
+                const newWallet = new Wallet({
+                    ethAddress: wallet.ethAddress,
+                    ethBalance: wallet.ethBalance,
+                    enjBalance: wallet.enjBalance,
+                    enjAllowance: wallet.enjAllowance,
+                })
+                newWallet.save().then(savedWallet => {
+                    syncWalletBalances(wallet, savedWallet, identity.id).then(syncedWallet => {
+                        identity.wallet = syncedWallet
+                        identity.save().then((savedIdentity) => {
+                            resolve(savedIdentity)
+                        }).catch(err => reject(err))
+                    })
+                })
+            } else {
+                syncWalletBalances(wallet, existingWallet, identity.id).then(syncedWallet => {
+                    identity.wallet = syncedWallet
+                    identity.save().then((savedIdentity) => {
+                        resolve(savedIdentity)
+                    }).catch(err => reject(err))
+                })
+            }
+        }).catch(err => reject(err))
+    })
 }
 
 // const syncIdentityTransactions = (identity, transactions) => {

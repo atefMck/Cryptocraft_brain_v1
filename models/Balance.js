@@ -13,7 +13,11 @@ const BalanceSchema = new Schema ({
   value: {
     type: Number,
     required: true,
-  }
+  },
+  identityId: {
+    type: String,
+    required: true
+  },
 });
 
 const Balance = mongoose.model('Balance', BalanceSchema);

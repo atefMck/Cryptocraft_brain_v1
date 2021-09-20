@@ -9,8 +9,12 @@ const { verifyToken } = require('../utils/tokenManager');
 // @route   GET api/listings
 // @desc    GET all listings
 // @access  Public
-router.get('/', (req, res) => {
-  Wallet.find().populate('balances').then(wallets => res.send(wallets))
+router.get('/getWallet', verifyToken, (req, res) => {
+    const userId = req.userId
+    User.findById(userId)
+    .populate({path: 'identity', populate: [{path: 'wallet', populate: {path: 'balances'}}]})
+    .then(user => res.send(user.identity.wallet))
+    .catch(err => res.send(err))
 });
 
 module.exports = router;

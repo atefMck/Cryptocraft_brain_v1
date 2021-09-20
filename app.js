@@ -9,6 +9,7 @@ const tokenRouter = require('./routes/Token')
 const offerRouter = require('./routes/Offer')
 const transactionRouter = require('./routes/Transaction')
 const walletRouter = require('./routes/Wallet')
+const tradeRouter = require('./routes/Trade')
 
 const cors = require("cors");
 const { MongoClient } = require('mongodb');
@@ -45,6 +46,7 @@ app.use('/token/', tokenRouter);
 app.use('/offer/', offerRouter);
 app.use('/transaction/', transactionRouter);
 app.use('/wallet/', walletRouter);
+app.use('/trade/', tradeRouter);
 
 
 app.listen(3005, function(){

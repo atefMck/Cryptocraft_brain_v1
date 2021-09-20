@@ -16,37 +16,32 @@ const syncWallet = (wallet) => {
   })
 }
 
-const syncWalletBalances = (wallet, dbWallet) => {
+const syncWalletBalances = (wallet, dbWallet, identityId) => {
   return new Promise((resolve, reject) => {
     const balances = wallet.balances
     const newBalances = []
     if (balances.length > 0) {
       Balance.find().then(dbBalances => {
         return new Promise((resolve, reject) => {
-          balances.forEach(balance => {
-            existingBalance = [...dbBalances.filter(dbBalance => (dbBalance.tokenId === balance.id) && (dbBalance.tokenIndex === balance.index))]
+          balances.forEach( async balance => {
+            existingBalance = dbBalances.filter(dbBalance => (dbBalance.tokenId === balance.id) && (dbBalance.tokenIndex === balance.index) && (dbBalance.identityId === identityId.toString()))
             if (existingBalance.length !== 0) {
-              if (existingBalance[0].value !== balance.value) {
-                existingBalance[0].value = balance.value
-                existingBalance[0].save().then(updatedBalance => newBalances.push(updatedBalance._id))
-              } else {
-                newBalances.push(existingBalance[0]._id)
-              }
+                newBalances.push(existingBalance[0])
             } else {
               const newBalance = new Balance({
                 tokenId: balance.id,
                 tokenIndex: balance.index,
                 value: balance.value,
+                identityId: identityId,
               })
-              newBalance.save().then(savedBalance => {newBalances.push(savedBalance._id)}).catch(err => reject(err))
+              const savedBalance = await newBalance.save()
+              newBalances.push(savedBalance);
             }
             if (newBalances.length === balances.length) {
-              console.log(newBalances) 
               resolve(newBalances)
             }
+            if (balances.length === 0) resolve([]);
           })
-          console.log(newBalances) 
-          resolve(newBalances)
         }).then(newBalances => {
           dbWallet.balances = newBalances;
           dbWallet.save().then(savedWallet => resolve(savedWallet)).catch(err => reject(err))

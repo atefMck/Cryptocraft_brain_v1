@@ -26,6 +26,10 @@ const IdentitySchema = new Schema ({
     type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Token'}],
     default: [],
   },
+  trades: {
+    type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Trade'}],
+    default: [],
+  },
 });
 
 const Identity = mongoose.model('Identity', IdentitySchema);

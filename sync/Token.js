@@ -24,12 +24,7 @@ const syncToken = (token) => {
     })
     newToken.save()
     .then(savedToken => resolve(savedToken))
-    .catch(err => {
-      if (err.code !== 11000) reject(err);
-      else {
-        Token.findOne({id: token.id}).then(savedToken => resolve(savedToken))
-      }
-    })
+    .catch(err => reject(err))
   })
 }
 

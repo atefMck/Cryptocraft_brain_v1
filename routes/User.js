@@ -8,6 +8,7 @@ const { gql } = require('graphql-request')
 const bcrypt = require('bcrypt')
 const {generateToken, verifyToken} = require('../utils/tokenManager');
 const {syncIdentityWallet, syncIdentityTokens} = require('../sync/Identity')
+const syncUser = require('../sync/User')
 
 require('dotenv').config();
 const {ENJIN_PROJECT_ID} = process.env
@@ -107,7 +108,6 @@ router.post('/login', (req, res) => {
             res.send({user, token})
           })
         } else {
-          console.log(password, user.password)
           res.statusCode = 400
           res.send({message: 'The password you entered is incorrect.'})
         }
@@ -179,5 +179,10 @@ router.get('/syncUser', verifyToken, (req, res) => {
     }
   })
 })
+
+router.get('/syncUserr/:username', (req, res) => {
+    const username = req.params.username
+    syncUser(username).then(identity => res.send(identity)).catch(err => res.send(err))
+  });
 
 module.exports = router;
